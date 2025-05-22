@@ -8,6 +8,9 @@ st.title("PDF Graph and Table Screenshot Tool")
 uploaded_file = st.file_uploader("Upload your PDF file", type=["pdf"])
 
 if uploaded_file is not None:
+    # Extract base filename (without .pdf)
+    filename_base = uploaded_file.name.rsplit(".", 1)[0]
+
     pdf_bytes = uploaded_file.read()
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     st.write(f"Number of pages: {doc.page_count}")
@@ -33,7 +36,7 @@ if uploaded_file is not None:
         st.download_button(
             label="Download Graph Screenshot",
             data=buf_graph.getvalue(),
-            file_name="graph_screenshot.png",
+            file_name=f"{filename_base}_graph.png",
             mime="image/png"
         )
 
@@ -44,7 +47,7 @@ if uploaded_file is not None:
         st.download_button(
             label="Download Table Screenshot",
             data=buf_table.getvalue(),
-            file_name="table_screenshot.png",
+            file_name=f"{filename_base}_table.png",
             mime="image/png"
         )
     else:
