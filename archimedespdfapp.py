@@ -2,12 +2,16 @@ import streamlit as st
 import fitz  # PyMuPDF
 from PIL import Image
 import io
+import matplotlib.pyplot as plt
 
 st.title("PDF Graph and Table Screenshot Tool")
 
 uploaded_file = st.file_uploader("Upload your PDF file", type=["pdf"])
 
 if uploaded_file is not None:
+    # Extract filename (without .pdf)
+    filename_base = uploaded_file.name.rsplit(".", 1)[0]
+
     pdf_bytes = uploaded_file.read()
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     st.write(f"Number of pages: {doc.page_count}")
@@ -26,26 +30,33 @@ if uploaded_file is not None:
         graph_img = img.crop(graph_box)
         table_img = img.crop(table_box)
 
-        # Show and download Graph
+        def image_to_svg(pil_img):
+            buf = io.BytesIO()
+            fig, ax = plt.subplots()
+            ax.imshow(pil_img)
+            ax.axis("off")
+            fig.savefig(buf, format="svg", bbox_inches="tight", pad_inches=0)
+            plt.close(fig)
+            return buf
+
+        # Display and download graph
         st.image(graph_img, caption="Graph Screenshot")
-        buf_graph = io.BytesIO()
-        graph_img.save(buf_graph, format="PNG")
+        buf_graph_svg = image_to_svg(graph_img)
         st.download_button(
             label="Download Graph Screenshot",
-            data=buf_graph.getvalue(),
-            file_name="graph_screenshot.png",
-            mime="image/png"
+            data=buf_graph_svg.getvalue(),
+            file_name=f"{filename_base}_graph.svg",
+            mime="image/svg+xml"
         )
 
-        # Show and download Table
+        # Display and download table
         st.image(table_img, caption="Table Screenshot")
-        buf_table = io.BytesIO()
-        table_img.save(buf_table, format="PNG")
+        buf_table_svg = image_to_svg(table_img)
         st.download_button(
             label="Download Table Screenshot",
-            data=buf_table.getvalue(),
-            file_name="table_screenshot.png",
-            mime="image/png"
+            data=buf_table_svg.getvalue(),
+            file_name=f"{filename_base}_table.svg",
+            mime="image/svg+xml"
         )
     else:
         st.warning("Your PDF has less than 2 pages.")
