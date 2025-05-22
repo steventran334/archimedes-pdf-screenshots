@@ -20,8 +20,8 @@ if uploaded_file is not None:
         st.subheader("Cropped Graph and Table from Page 2")
 
         # Final crop boxes
-        graph_box = (300, 105, 1600, 1120)
-        table_box = (250, 1120, 1500, 1790)
+        graph_box = (100, 250, 1600, 1120)
+        table_box = (150, 1120, 1500, 1790)
 
         graph_img = img.crop(graph_box)
         table_img = img.crop(table_box)
