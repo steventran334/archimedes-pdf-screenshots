@@ -12,37 +12,21 @@ if uploaded_file is not None:
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     st.write(f"Number of pages: {doc.page_count}")
 
-    # Display both pages as images
-    page_images = []
-    for page_num in range(doc.page_count):
-        page = doc[page_num]
+    if doc.page_count >= 2:
+        page = doc[1]  # Page 2 (0-indexed)
         pix = page.get_pixmap(dpi=200)
         img = Image.open(io.BytesIO(pix.tobytes("png")))
-        page_images.append(img)
-        st.image(img, caption=f"Page {page_num+1}", use_column_width=True)
 
-    # Crop graph and table from page 2
-    if doc.page_count >= 2:
         st.subheader("Cropped Graph and Table from Page 2")
 
-        # Use your provided coordinates
-        graph_left = 33.65
-        graph_top = 33.82
-        graph_right = graph_left + 549.67
-        graph_bottom = graph_top + 369.82
-        graph_box = (graph_left, graph_top, graph_right, graph_bottom)
+        # Final crop boxes
+        graph_box = (100, 105, 1600, 1120)
+        table_box = (150, 1120, 1500, 1790)
 
-        table_left = 116.81
-        table_top = 400.68
-        table_right = table_left + 380.9
-        table_bottom = table_top + 241.51
-        table_box = (table_left, table_top, table_right, table_bottom)
+        graph_img = img.crop(graph_box)
+        table_img = img.crop(table_box)
 
-        page2_img = page_images[1]
-
-        graph_img = page2_img.crop(graph_box)
-        table_img = page2_img.crop(table_box)
-
+        # Show and download Graph
         st.image(graph_img, caption="Graph Screenshot")
         buf_graph = io.BytesIO()
         graph_img.save(buf_graph, format="PNG")
@@ -53,6 +37,7 @@ if uploaded_file is not None:
             mime="image/png"
         )
 
+        # Show and download Table
         st.image(table_img, caption="Table Screenshot")
         buf_table = io.BytesIO()
         table_img.save(buf_table, format="PNG")
