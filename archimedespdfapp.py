@@ -21,7 +21,7 @@ if uploaded_file is not None:
 
         # Final crop boxes
         graph_box = (120, 370, 1590, 1035)
-        table_box = (150, 1120, 1500, 1790)
+        table_box = (150, 1000, 1500, 1790)
 
         graph_img = img.crop(graph_box)
         table_img = img.crop(table_box)
